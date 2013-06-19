@@ -10,12 +10,10 @@
  * Module dependencies.
  */
 
-var send = require('./controllers/send');
 var store = require('./controllers/store');
 var home = require('./controllers/home');
 
 module.exports = function (app) {
-  app.post('/send', send);
   app.post('/store', store);
   app.get('/', home);
 };

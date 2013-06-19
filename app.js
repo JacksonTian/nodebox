@@ -12,9 +12,7 @@
 
 var http = require('http');
 var config = require('./config');
-var auth = require('./middleware/auth');
 var fs = require('fs');
-var path = require('path');
 var http = require('http');
 var connect = require('connect');
 var urlrouter = require('urlrouter');
@@ -59,11 +57,6 @@ app.use(render({
     },
     // assetsMap: require('./assets.json')
   }
-}));
-
-app.use(auth({
-  user: config.user,
-  password: config.password,
 }));
 
 // 路由
