@@ -10,7 +10,6 @@
  * Module dependencies.
  */
 
-var util = require('util');
 var config = require('../config');
 var qiniu = require('qiniu');
 var path = require('path');

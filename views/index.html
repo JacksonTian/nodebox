@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="utf8">
-    <title>File Store: nodebox</title>
+    <title>中国头像网</title>
     <style type="text/css">
       .edit-box {
         border: 1px solid #ffbb03;
@@ -12,19 +12,20 @@
         width: 300px
       }
     </style>
+    <script type="text/javascript" src="/assets/scripts/md5.js"></script>
+    <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
   </head>
 
 <body>
-  <h2>Upload a file</h2>
-  <p>Using our API is really easy. Just post a file to our
-    store-page: (max size: 200mb)</p>
-  <pre>&lt;form action="/store" enctype="multipart/form-data" method="post"&gt;
-    &lt;input type="file" name="file" /&gt;
-    &lt;input type="submit" /&gt;
-&lt;/form&gt;
-</pre>
   <form action="/store" enctype="multipart/form-data" method="post">
-    <input type="file" name="file" /> <input type="submit" />
+    <div>
+      填写您的Email地址：<input type="text" class="email" name="email" />
+    </div>
+    <div>
+      您的头像：<input type="file" name="file" />
+    </div>
+    <input type="submit" />
+    <a class="view" href="javascript:;">预览</a>
   </form>
 
   <div id="file-box" class="edit-box" contenteditable="false">
@@ -42,29 +43,7 @@
     url: 
     <input type="test" id="result-url" value="" style="width: 400px">
   </p>
-  <a href="http://codebits.glennjones.net/editing/getclipboarddata.htm" 
-    target="_blank">@see: onPaste clipboardData support</a>
-
   <hr />
-  <div class="footer">
-    <h2>About</h2>
-    Web base on <a href="http://nodejs.org" target="_blank">nodejs</a>
-    |
-    Cloud store power by <a href="http://qiniutek.com" target="_blank">七牛云存储</a>
-    ,
-    <a href="https://github.com/qiniu/nodejs-sdk" target="_blank">SDK</a>
-    |
-    Open source on <a href="https://github.com/fengmk2/nodebox" target="_blank">Github</a>
-    |
-    Current version {version}
-    <h2>Author</h2>
-    <div>
-      <img src="http://tp1.sinaimg.cn/1640328892/50/5656773936/1" />
-      <a href="https://github.com/fengmk2" target="_blank">@fengmk2</a>
-    </div>
-  </div>
-
-<script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
 <script>
 function _get_clipboard_file(e, callback) {
   var f = null;
@@ -236,6 +215,11 @@ var Nodebox = {
     });
   }
 };
+$('.view').click(function () {
+  var email = $('.email').val();
+  $('#preview').show();
+  $("#image").attr('src', 'http://cnavatar.qiniudn.com/' + hex_md5(email));
+});
 </script>
 
 </body>

@@ -19,6 +19,6 @@ module.exports = {
     ACCESS_KEY: 'YOUR_ACCESS_KEY',
     SECRET_KEY: 'YOUR_SECRET_KEY',
     bucket: 'nodebox',
-    domain: 'your.domain'
+    domain: 'cnavatar.qiniudn.com'
   }
 };

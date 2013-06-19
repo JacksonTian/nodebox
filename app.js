@@ -11,40 +11,96 @@
  */
 
 var http = require('http');
-var path = require('path');
 var config = require('./config');
-var router = require('./router');
-var urlparse = require('url').parse;
 var auth = require('./middleware/auth');
+var fs = require('fs');
+var path = require('path');
+var http = require('http');
+var connect = require('connect');
+var urlrouter = require('urlrouter');
+var render = require('connect-render');
+var forward = require('forward');
+var Loader = require('loader');
 
-var MAX_SIZE = config.maxSize || 10 * 1024 * 1024;
+require('response-patch');
 
-var app = http.createServer(function handle(req, res) {
-  var contentLength = parseInt(req.headers['content-length'], 10) || 0;
-  if (req.method.toLowerCase() === 'post') {
-    var forbidden = contentLength > MAX_SIZE;
-    if (forbidden) {
-      res.writeHead(403, { 'content-type': 'text/plain' });
-      res.end(JSON.stringify({success: false, message: 'max file size is 200mb.'}));
-      req.connection.destroy();
-      return;
-    }
+var config = require('./config');
+var routes = require('./routes');
+
+var app = connect();
+// 记录access log
+connect.logger.format('home', ':remote-addr :response-time - [:date] ":method :url HTTP/:http-version" :status :res[content-length] ":referrer" ":user-agent" :res[content-length]');
+app.use(connect.logger({
+  format: 'home',
+  stream: fs.createWriteStream(__dirname + '/logs/access.log')
+}));
+
+// favicon
+app.use('/favicon.ico', forward(__dirname + '/assets/favicon.ico'));
+
+// 解析静态文件
+app.use('/assets', connect.static(__dirname + '/assets', { maxAge: 3600000 * 24 * 365 }));
+
+// 解析query
+app.use(connect.query());
+app.use(connect.bodyParser({uploadDir: '/tmp'}));
+
+// 模版
+app.use(render({
+  root: __dirname + '/views',
+  layout: false,
+  viewExt: '.html',
+  cache: !config.debug,
+  helpers: {
+    CDN: config.debug ? '' : 'http://qiniudn.com',
+    version: config.version,
+    Loader: function () {
+      return Loader;
+    },
+    // assetsMap: require('./assets.json')
   }
+}));
 
-  var urlinfo = urlparse(req.url, true);
-  req.pathname = urlinfo.pathname;
-  req.query = urlinfo.query || {};
-  
-  auth({
-    user: config.user,
-    password: config.password,
-  })(req, res, function () {
-    router(req, res);
-  });
+app.use(auth({
+  user: config.user,
+  password: config.password,
+}));
 
+// 路由
+app.use(urlrouter(routes));
+
+/**
+ * Error handler
+ */
+app.use(function (err, req, res, next) {
+  err.url = err.url || req.url;
+  console.log(err.stack);
+  res.statusCode = err.status || 500;
+  res.render('500');
 });
 
+/**
+ * Page not found handler
+ */
+app.use(function (req, res, next) {
+  res.statusCode = 404;
+  res.render('404');
+});
+
+process.on('uncaughtException', function (err) {
+  if (err.domain_thrown) {
+    return;
+  }
+  // 测试情况下，断言异常不要抛出
+  if (process.env.NODE_ENV === 'test' && err.name === 'AssertionError') {
+    return;
+  }
+  throw err;
+});
+
+var server = http.createServer(app);
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(config.port);
+  server.listen(config.port);
 }
-module.exports = app;
+
+module.exports = server;

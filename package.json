@@ -19,7 +19,13 @@
     "formidable": "1.0.11",
     "pause-stream": "0.0.6",
     "mime": ">=1.2.7",
-    "qiniu": ">=1.4.1"
+    "qiniu": ">=1.4.1",
+    "connect": "*",
+    "urlrouter": "*",
+    "connect-render": "*",
+    "forward": "*",
+    "loader": "*",
+    "response-patch": "*"
   },
   "devDependencies": {
     "should": "*",
